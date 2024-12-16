@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weather App</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="card">
+            <div class="search">
+                <input type="text" placeholder="Enter city name" spellcheck="false">
+                <button><img src="images/search.png" width="40" height="40"></button>
+            </div>
+            <div class="weather">
+                <img src="images/rainy.png" class="weather-icon">
+                <h1 class="temp">22°C</h1>
+                <h2 class="city">New York</h2>
+                <div class="details">
+                    <div class="col">
+                        <img src="images/humidity.png">
+                        <div>
+                            <p class="humidity">50%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <img src="images/wind.png">
+                        <div>
+                            <p class="wind">15 km/h</p>
+                            <p>Wind Speed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const apiKey = "0ff172ee1f1e1d92ecdd960e779ced85";
+            const apiUrl= "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+            const searchBox = document.querySelector(".search input");
+            const searchBtn = document.querySelector(".search button");
+            const weatherIcon = document.querySelector(".weather-icon");
+
+            async function checkWeather(city) {
+                try {
+                    const response = await fetch(`${apiUrl}${city}&appid=${apiKey}`);
+                    if (!response.ok) {
+                        throw new Error("City not found or API request failed");
+                    }
+                    const data = await response.json();
+                    
+                    console.log(data.weather[0].main);  // Log the weather condition
+
+                    // Update UI with weather data
+                    document.querySelector(".city").innerHTML = data.name;
+                    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + " °C";
+                    document.querySelector(".humidity").innerHTML = data.main.humidity + " %";
+                    document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+                     // Set weather icon based on condition
+                    switch (data.weather[0].main) {
+                        case "Clouds":
+                            weatherIcon.src = "images/cloudy.png";
+                            document.querySelector(".card").className = "card clouds";  // Add clouds class
+                            break;
+                        case "Clear":
+                            weatherIcon.src = "images/clear.png";
+                            document.querySelector(".card").className = "card clear";  // Add clear class
+                            break;
+                        case "Rain":
+                            weatherIcon.src = "images/rainy.png";
+                            document.querySelector(".card").className = "card rain";  // Add rain class
+                            break;
+                        case "Snow":
+                            weatherIcon.src = "images/snow.png";
+                            document.querySelector(".card").className = "card snow";  // Add snow class
+                            break;
+                        case "Thunderstorm":
+                            weatherIcon.src = "images/thunderstorm.png";
+                            document.querySelector(".card").className = "card thunderstorm";  // Add thunderstorm class
+                            break;
+                        case "Mist":
+                            weatherIcon.src = "images/mist.png";
+                            document.querySelector(".card").className = "card mist";  // Add mist class
+                            break;
+                        default:
+                            weatherIcon.src = "images/default.png"; // Optional default icon
+                            document.querySelector(".card").className = "card";  // Default class
+                    }
+
+
+                    document.querySelector(".weather").style.display="block";
+
+                } catch (error) {
+                    console.error(error);
+                    alert("Error fetching weather data: " + error.message);
+                }
+            }
+
+            searchBtn.addEventListener("click", () => {
+                const city = searchBox.value.trim();
+                if (city) {
+                    checkWeather(city);
+                } else {
+                    alert("Please enter a city name.");
+                }
+            });
+        </script>
+    </body>
+</html>
